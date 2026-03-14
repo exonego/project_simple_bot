@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from aiogram import Bot, Router, F
 from aiogram.types import (
@@ -109,4 +110,5 @@ async def mailing_confirmed(
     alive_users = await requests.users.get_all_alive_users(conn=conn)
     for recipient_row in alive_users:
         await bot.send_message(chat_id=recipient_row[0], text=mailing_text)
+        await asyncio.sleep(0.05)
     logger.info("Рассылка завершена успешно!")

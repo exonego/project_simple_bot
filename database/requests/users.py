@@ -108,7 +108,7 @@ async def change_name(
         await cursor.execute(
             query="""
                 UPDATE users
-                SET name = %s
+                SET name = '%s'
                 WHERE tg_id = %s;
             """,
             params=(name, tg_id),

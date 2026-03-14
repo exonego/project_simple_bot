@@ -12,6 +12,8 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from psycopg import AsyncConnection
 
+from bot.handling.keyboards.user import get_back_kbd
+from bot.handling.keyboards.admin import get_admin_menu_kbd, get_confirm_kbd
 from bot.handling.states import MailingSG
 from bot.enums import Role
 from bot.handling.filters import RoleFilter
@@ -30,9 +32,7 @@ async def click_mailing(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.edit_text(
         text="Введите текст рассылки (до 1000 символов)",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="Назад", callback_data="back")]]
-        ),
+        reply_markup=get_back_kbd(),
     )
 
     await state.set_state(MailingSG.send_mailing_text)
@@ -46,11 +46,7 @@ async def click_back_from_sending_mailing_text(
     await callback.answer()
     await callback.message.edit_text(
         text="Привет, админ!",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text="Рассылка", callback_data="mailing")]
-            ]
-        ),
+        reply_markup=get_admin_menu_kbd(),
     )
 
     await state.clear()
@@ -61,12 +57,7 @@ async def click_back_from_sending_mailing_text(
 async def mailing_text_sent(message: Message, state: FSMContext):
     await message.answer(
         text=f"Текст рассылки:\n<code>{message.text.strip()}</code>\n\n <b><i>Подтвердить??</i></b>",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text="Подтвердить", callback_data="confirm")],
-                [InlineKeyboardButton(text="Назад", callback_data="back")],
-            ]
-        ),
+        reply_markup=get_confirm_kbd(),
     )
 
     await state.update_data(mailing_text=message.text.strip())
@@ -79,9 +70,7 @@ async def back_from_confirmation_mailing(callback: CallbackQuery, state: FSMCont
     await callback.answer()
     await callback.message.edit_text(
         text="Введите текст рассылки (до 1000 символов)",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="Назад", callback_data="back")]]
-        ),
+        reply_markup=get_back_kbd(),
     )
 
     await state.set_state(MailingSG.send_mailing_text)
@@ -100,11 +89,7 @@ async def mailing_confirmed(
     await callback.message.edit_text(text="Рассылка подтверждена и начата!")
     await callback.message.answer(
         text="Привет, админ!",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text="Рассылка", callback_data="mailing")]
-            ]
-        ),
+        reply_markup=get_admin_menu_kbd(),
     )
 
     await state.clear()

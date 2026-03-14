@@ -10,6 +10,8 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from psycopg import AsyncConnection
 
+from bot.handling.keyboards.user import get_user_menu_kbd
+from bot.handling.keyboards.admin import get_admin_menu_kbd
 from bot.enums import Role
 from bot.handling.states import ChangeNameSG
 from database import requests
@@ -43,15 +45,7 @@ async def start_cmd(
             if user_row[1] is not None:
                 await message.answer(
                     text=f"Добро пожаловать, {user_row[1]}!",
-                    reply_markup=InlineKeyboardMarkup(
-                        inline_keyboard=[
-                            [
-                                InlineKeyboardButton(
-                                    text="Изменить имя", callback_data="change_name"
-                                )
-                            ]
-                        ]
-                    ),
+                    reply_markup=get_user_menu_kbd(),
                 )
             else:
                 await message.answer(text="Добро пожаловать в бота! Введи свое имя.")
@@ -61,11 +55,7 @@ async def start_cmd(
         elif role == Role.ADMIN:
             await message.answer(
                 text="Привет, админ!",
-                reply_markup=InlineKeyboardMarkup(
-                    inline_keyboard=[
-                        [InlineKeyboardButton(text="Рассылка", callback_data="mailing")]
-                    ]
-                ),
+                reply_markup=get_admin_menu_kbd(),
             )
 
         await requests.users.change_is_alive(

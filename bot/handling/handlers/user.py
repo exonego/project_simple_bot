@@ -12,6 +12,7 @@ from aiogram.filters import StateFilter, ChatMemberUpdatedFilter, KICKED
 from aiogram.fsm.context import FSMContext
 from psycopg import AsyncConnection
 
+from bot.handling.keyboards.user import get_user_menu_kbd, get_back_kbd
 from bot.handling.states import ChangeNameSG
 from database import requests
 
@@ -25,10 +26,7 @@ user_router = Router()
 async def click_change_name(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.edit_text(
-        text="Введи свое имя.",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="Назад", callback_data="back")]]
-        ),
+        text="Введи свое имя.", reply_markup=get_back_kbd()
     )
 
     await state.set_state(ChangeNameSG.send_name)
@@ -44,15 +42,7 @@ async def back_from_sending_name(
     if user_row[1]:
         await callback.message.edit_text(
             text=f"Добро пожаловать, {user_row[1]}!",
-            reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [
-                        InlineKeyboardButton(
-                            text="Изменить имя", callback_data="change_name"
-                        )
-                    ]
-                ]
-            ),
+            reply_markup=get_user_menu_kbd(),
         )
 
         await state.clear()
@@ -70,11 +60,7 @@ async def name_sent(message: Message, conn: AsyncConnection, state: FSMContext):
     await message.answer(text=f"Твое новое имя: {message.text.strip()}")
     await message.answer(
         text=f"Добро пожаловать, {message.text.strip()}!",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text="Изменить имя", callback_data="change_name")]
-            ]
-        ),
+        reply_markup=get_user_menu_kbd(),
     )
 
     await requests.users.change_name(

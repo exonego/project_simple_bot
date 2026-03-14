@@ -7,18 +7,21 @@ from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    ChatMemberUpdated,
 )
-from aiogram.filters import StateFilter, ChatMemberUpdatedFilter, KICKED
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from psycopg import AsyncConnection
 
 from bot.handling.states import MailingSG
+from bot.enums import Role
+from bot.handling.filters import RoleFilter
 from database import requests
 
 logger = logging.getLogger(__name__)
 
 admin_router = Router()
+admin_router.message.filter(RoleFilter(Role.ADMIN))
+admin_router.callback_query.filter(RoleFilter(Role.ADMIN))
 
 
 # Реагирует на нажатие кнопки рассылки
